@@ -8,23 +8,26 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.taskmanagementappnew.MainActivity
 import com.example.taskmanagementappnew.R
 import com.example.taskmanagementappnew.adapter.NoteAdapter
+import com.example.taskmanagementappnew.databinding.FragmentHomeBinding
 import com.example.taskmanagementappnew.model.Note
 import com.example.taskmanagementappnew.viewmodel.NoteViewModel
 
-class HomeFragment : Fragment(R.layout.fragment_home),SearchView.OnQueryTextListener,MenuProvider {
 
-    private var homeBinding:FragmentHomeBinding? = null
-    private val binder get() = homeBinding!!
+class HomeFragment : Fragment(R.layout.fragment_home), SearchView.OnQueryTextListener,MenuProvider {
 
-    private lateinit var noteViewModel: NoteViewModel
+    private var homeBinding: FragmentHomeBinding? = null
+    private val binding get() = homeBinding!!
+
+    private lateinit var notesViewModel: NoteViewModel
     private lateinit var noteAdapter: NoteAdapter
 
     override fun onCreateView(
@@ -63,9 +66,9 @@ class HomeFragment : Fragment(R.layout.fragment_home),SearchView.OnQueryTextList
         }
 
     private fun searchNote(query: String?){
-        val searchQuery = "%$query"
+        val searchQuery = "%$query%"
 
-        noteViewModel.searchNote(searchQuery).observe(this){list ->
+        notesViewModel.searchNote(searchQuery).observe(this){list ->
             noteAdapter.differ.submitList(list)
         }
     }
@@ -91,17 +94,16 @@ class HomeFragment : Fragment(R.layout.fragment_home),SearchView.OnQueryTextList
         menuInflater.inflate(R.menu.home_menu,menu)
 
         val menuSearch = menu.findItem(R.id.searchMenu).actionView as SearchView
-        menuSearch.isSubmitButtonEnabled = flase
+        menuSearch.isSubmitButtonEnabled = false
         menuSearch.setOnQueryTextListener(this)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return false
     }
-}
 
     private fun setupHomeRecyclerView(){
-        noAdapter = NoteAdapter()
+        noteAdapter = NoteAdapter()
         binding.homeRecyclerView.apply {
             layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
             setHasFixedSize(true)
@@ -114,7 +116,6 @@ class HomeFragment : Fragment(R.layout.fragment_home),SearchView.OnQueryTextList
                 updateUI(note)
             }
         }
-
-
-
+    }
 }
+
